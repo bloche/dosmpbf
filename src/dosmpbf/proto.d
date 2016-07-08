@@ -135,10 +135,11 @@ mixin ProtocolBufferFromString!"
 
     message Relation {
         enum MemberType {
-        NODE = 0;
-        WAY = 1;
-        RELATION = 2;
+            NODE = 0;
+            WAY = 1;
+            RELATION = 2;
         } 
+
         required int64 id = 1;
 
         // Parallel arrays.
