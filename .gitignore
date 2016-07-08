@@ -1,6 +1,8 @@
+# random files
 .DS_Store
 .swp
 
+# build files
 .obj
 .dub
 
