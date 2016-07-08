@@ -1,0 +1,10 @@
+{
+    "name": "dosmpbf",
+    "description": "OSM PBF file parser for D",
+    "authors": ["Everett Bloch"],
+    "homepage": "",
+    "license": "",
+    "dependencies": {
+        "dproto": "~>2.0.1"
+    }
+}
