@@ -285,12 +285,12 @@ unittest
 
     StringTable stringTable;
 
-    stringTable.s = "exString";
+    stringTable.s = [cast(ubyte[])"exString"];
 
     auto s = stringTable.serialize();
     stringTable = StringTable(s);
 
-    assert(stringTable.s == "exString");
+    assert(stringTable.s == ["exString"]);
 
 
     ChangeSet changeSet;
@@ -322,14 +322,15 @@ unittest
     assert(info.user_sid == 5);
     assert(info.visible == true);
 
+
     Node node;
 
     node.id = 1234;
     node.keys = [123, 456];
     node.vals = [234, 567];
     node.info = info;
-    node.lat = 32.6;
-    node.lon = -66.5;
+    node.lat = 326;
+    node.lon = -665;
 
     auto n = node.serialize();
     node = Node(n);
@@ -368,7 +369,7 @@ unittest
     relation.info = info;
     relation.roles_sid = [1245];
     relation.memids = [-324];
-    relation.types = Relation.MemberType.NODE;
+    relation.types = [Relation.MemberType.NODE];
 
     auto r = relation.serialize();
     relation = Relation(r);
@@ -379,13 +380,13 @@ unittest
     assert(relation.info == info);
     assert(relation.roles_sid == [1245]);
     assert(relation.memids == [-324]);
-    assert(relation.types == Relation.MemberType.NODE); 
+    assert(relation.types == [Relation.MemberType.NODE]); 
 
 
     DenseInfo denseInfo;
 
     denseInfo.versionNo = [123];
-    denseInfo.timesteamp = [-2345];
+    denseInfo.timestamp = [-2345];
     denseInfo.changeset = [39045];
     denseInfo.uid = [34353];
     denseInfo.user_sid = [5432];
@@ -395,7 +396,7 @@ unittest
     denseInfo = DenseInfo(di);
 
     assert(denseInfo.versionNo == [123]);
-    assert(denseInfo.timesteamp == [-2345]);
+    assert(denseInfo.timestamp == [-2345]);
     assert(denseInfo.changeset == [39045]);
     assert(denseInfo.uid == [34353]);
     assert(denseInfo.user_sid == [5432]);
