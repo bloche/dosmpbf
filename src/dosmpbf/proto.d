@@ -8,8 +8,9 @@ module dosmpbf.proto;
 
 import dproto.dproto;
 
-// osm pbf file format
-mixin ProtocolBufferFromString!"
+// osm pbf file format protocol buffer
+enum fileFormat_proto = q{
+
     message BlobHeader {
         required string type = 1;
         optional bytes indexdata = 2;
@@ -29,10 +30,13 @@ mixin ProtocolBufferFromString!"
         // Formerly used for bzip2 compressed data. Depreciated in 2010.
         optional bytes OBSOLETE_bzip2_data = 5 [deprecated=true]; // Don't reuse this tag number.
     }
-";
 
-// osm pbf format
-mixin ProtocolBufferFromString!"
+};
+mixin ProtocolBufferFromString!fileFormat_proto;
+
+// osm pbf format protocol buffer
+enum osmFormat_proto = q{
+
     message HeaderBlock {
         optional HeaderBBox bbox = 1;
         /* Additional tags to aid in parsing this dataset */
@@ -207,7 +211,10 @@ mixin ProtocolBufferFromString!"
         // set.
         repeated bool visible = 6 [packed = true];
     }
-";
+
+};
+mixin ProtocolBufferFromString!osmFormat_proto;
+
 
 unittest
 {
