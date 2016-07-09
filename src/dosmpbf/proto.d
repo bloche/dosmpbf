@@ -9,7 +9,7 @@ module dosmpbf.proto;
 import dproto.dproto;
 
 // osm pbf file format protocol buffer
-enum fileFormat_proto = q{
+mixin ProtocolBufferFromString!q{
 
     message BlobHeader {
         required string type = 1;
@@ -32,10 +32,9 @@ enum fileFormat_proto = q{
     }
 
 };
-mixin ProtocolBufferFromString!fileFormat_proto;
 
 // osm pbf format protocol buffer
-enum osmFormat_proto = q{
+mixin ProtocolBufferFromString!q{
 
     message HeaderBlock {
         optional HeaderBBox bbox = 1;
@@ -213,7 +212,6 @@ enum osmFormat_proto = q{
     }
 
 };
-mixin ProtocolBufferFromString!osmFormat_proto;
 
 
 unittest
