@@ -1,9 +1,10 @@
 /**
  * OSM PBF proto buffer definitions:
  * http://wiki.openstreetmap.org/wiki/PBF_Format
+ * https://github.com/scrosby/OSM-binary/tree/master/src
  */
 
-module dosmpbf;
+module dosmpbf.proto;
 
 import dproto.dproto;
 
@@ -155,7 +156,7 @@ mixin ProtocolBufferFromString!"
     }
 
     message Info {
-        optional int32 version = 1 [default = -1];
+        optional int32 versionNo = 1 [default = -1];
         optional int32 timestamp = 2;
         optional int64 changeset = 3;
         optional int32 uid = 4;
@@ -185,8 +186,12 @@ mixin ProtocolBufferFromString!"
         repeated int32 keys_vals = 10 [packed = true]; 
     }
 
+    message OtherMessage {
+        required int32 id = 1;
+    }
+
     message DenseInfo {
-        repeated int32 version = 1 [packed = true]; 
+        repeated int32 versionNo = 1 [packed = true]; 
         repeated sint64 timestamp = 2 [packed = true]; // DELTA coded
         repeated sint64 changeset = 3 [packed = true]; // DELTA coded
         repeated sint32 uid = 4 [packed = true]; // DELTA coded
@@ -203,3 +208,262 @@ mixin ProtocolBufferFromString!"
         repeated bool visible = 6 [packed = true];
     }
 ";
+
+unittest
+{
+    BlobHeader blobHeader;
+
+    blobHeader.type = "exType";
+    blobHeader.indexdata = cast(ubyte[])"exIdxData";
+    blobHeader.datasize = 100;
+    
+    auto bh = blobHeader.serialize();
+    blobHeader = BlobHeader(bh);
+
+    assert(blobHeader.type == "exType");
+    assert(blobHeader.indexdata == "exIdxData");
+    assert(blobHeader.datasize == 100);
+
+    
+    Blob blob;
+
+    blob.raw = cast(ubyte[])"exRaw";
+    blob.raw_size = 5;
+    blob.zlib_data = cast(ubyte[])"exZlibData";
+    blob.lzma_data = cast(ubyte[])"exLzmaData";
+    blob.OBSOLETE_bzip2_data = cast(ubyte[])"exBzip2Data";
+
+    auto b = blob.serialize();
+    blob = Blob(b);
+
+    assert(blob.raw == "exRaw");
+    assert(blob.raw_size == 5);
+    assert(blob.zlib_data == "exZlibData");
+    assert(blob.lzma_data == "exLzmaData");
+    assert(blob.OBSOLETE_bzip2_data == "exBzip2Data");
+    
+    
+    HeaderBBox headerBBox;
+
+    headerBBox.left = 10;
+    headerBBox.right = 5;
+    headerBBox.top = -32;
+    headerBBox.bottom = -24;
+
+    auto hbb = headerBBox.serialize();
+    headerBBox = HeaderBBox(hbb);
+
+    assert(headerBBox.left == 10);
+    assert(headerBBox.right == 5);
+    assert(headerBBox.top == -32);
+    assert(headerBBox.bottom == -24);
+
+
+    HeaderBlock headerBlock;
+
+    headerBlock.bbox = headerBBox;
+    headerBlock.required_features = ["exReqFeatures"];
+    headerBlock.optional_features = ["exOptionalFeatures"];
+    headerBlock.writingprogram = "exWritingProgram";
+    headerBlock.source = "exSource";
+    headerBlock.osmosis_replication_timestamp = 12345;
+    headerBlock.osmosis_replication_sequence_number = 54321;
+    headerBlock.osmosis_replication_base_url = "http://example.com";
+
+    auto hb = headerBlock.serialize();
+    headerBlock = HeaderBlock(hb);
+
+    assert(headerBlock.bbox == headerBBox);
+    assert(headerBlock.required_features == ["exReqFeatures"]);
+    assert(headerBlock.optional_features == ["exOptionalFeatures"]);
+    assert(headerBlock.writingprogram == "exWritingProgram");
+    assert(headerBlock.source == "exSource");
+    assert(headerBlock.osmosis_replication_timestamp == 12345);
+    assert(headerBlock.osmosis_replication_sequence_number == 54321);
+    assert(headerBlock.osmosis_replication_base_url == "http://example.com");
+
+
+    StringTable stringTable;
+
+    stringTable.s = "exString";
+
+    auto s = stringTable.serialize();
+    stringTable = StringTable(s);
+
+    assert(stringTable.s == "exString");
+
+
+    ChangeSet changeSet;
+
+    changeSet.id = 1234;
+
+    auto cs = changeSet.serialize();
+    changeSet = ChangeSet(s);
+
+    assert(changeSet.id == 1234);
+
+
+    Info info;
+
+    info.versionNo = 1;
+    info.timestamp = 234;
+    info.changeset = 54321;
+    info.uid = 4;
+    info.user_sid = 5;
+    info.visible = true;
+
+    auto i = info.serialize();
+    info = Info(i);
+
+    assert(info.versionNo == 1);
+    assert(info.timestamp == 234);
+    assert(info.changeset == 54321);
+    assert(info.uid == 4);
+    assert(info.user_sid == 5);
+    assert(info.visible == true);
+
+    Node node;
+
+    node.id = 1234;
+    node.keys = [123, 456];
+    node.vals = [234, 567];
+    node.info = info;
+    node.lat = 32.6;
+    node.lon = -66.5;
+
+    auto n = node.serialize();
+    node = Node(n);
+
+    assert(node.id == 1234);
+    assert(node.keys == [123, 456]);
+    assert(node.vals == [234, 567]);
+    assert(node.info == info);
+    assert(node.lat == 326);
+    assert(node.lon == -665);
+
+
+    Way way;
+
+    way.id = 345;
+    way.keys = [123, 234];
+    way.vals = [567, 789];
+    way.info = info;
+    way.refs = [-234, 123];
+
+    auto w = way.serialize();
+    way = Way(w);
+
+    assert(way.id == 345);
+    assert(way.keys == [123, 234]);
+    assert(way.vals == [567, 789]);
+    assert(way.info == info);
+    assert(way.refs == [-234, 123]);
+
+
+    Relation relation;
+
+    relation.id = 123;
+    relation.keys = [123, 235];
+    relation.vals = [456, 567];
+    relation.info = info;
+    relation.roles_sid = [1245];
+    relation.memids = [-324];
+    relation.types = Relation.MemberType.NODE;
+
+    auto r = relation.serialize();
+    relation = Relation(r);
+
+    assert(relation.id == 123);
+    assert(relation.keys == [123, 235]);
+    assert(relation.vals == [456, 567]);
+    assert(relation.info == info);
+    assert(relation.roles_sid == [1245]);
+    assert(relation.memids == [-324]);
+    assert(relation.types == Relation.MemberType.NODE); 
+
+
+    DenseInfo denseInfo;
+
+    denseInfo.versionNo = [123];
+    denseInfo.timesteamp = [-2345];
+    denseInfo.changeset = [39045];
+    denseInfo.uid = [34353];
+    denseInfo.user_sid = [5432];
+    denseInfo.visible = [true];
+
+    auto di = denseInfo.serialize();
+    denseInfo = DenseInfo(di);
+
+    assert(denseInfo.versionNo == [123]);
+    assert(denseInfo.timesteamp == [-2345]);
+    assert(denseInfo.changeset == [39045]);
+    assert(denseInfo.uid == [34353]);
+    assert(denseInfo.user_sid == [5432]);
+    assert(denseInfo.visible == [true]); 
+
+
+    DenseNodes denseNodes;
+
+    denseNodes.id = [1234];
+    denseNodes.denseinfo = denseInfo;
+    denseNodes.lat = [-1345];
+    denseNodes.lon = [343];
+    denseNodes.keys_vals = [432];
+
+    auto dn = denseNodes.serialize();
+    denseNodes = DenseNodes(dn);
+
+    assert(denseNodes.id == [1234]);
+    assert(denseNodes.denseinfo == denseInfo);
+    assert(denseNodes.lat == [-1345]);
+    assert(denseNodes.lon == [343]);
+    assert(denseNodes.keys_vals == [432]);
+
+
+    PrimitiveGroup primitiveGroup;
+
+    primitiveGroup.nodes = [node];
+    primitiveGroup.dense = denseNodes;
+    primitiveGroup.ways = [way];
+    primitiveGroup.relations = [relation];
+    primitiveGroup.changesets = [changeSet];
+
+    auto pg = primitiveGroup.serialize();
+    primitiveGroup = PrimitiveGroup(pg);
+
+    assert(primitiveGroup.nodes == [node]);
+    assert(primitiveGroup.dense == denseNodes);
+    assert(primitiveGroup.ways == [way]);
+    assert(primitiveGroup.relations == [relation]);
+    assert(primitiveGroup.changesets == [changeSet]); 
+
+
+    PrimitiveBlock primitiveBlock;
+
+    primitiveBlock.stringtable = stringTable;
+    primitiveBlock.primitivegroup = primitiveGroup;
+    primitiveBlock.granularity = 435;
+    primitiveBlock.lat_offset = 44;
+    primitiveBlock.lon_offset = 32;
+    primitiveBlock.date_granularity = 11;
+
+    auto pb = primitiveBlock.serialize();
+    primitiveBlock = PrimitiveBlock(pb);
+
+    assert(primitiveBlock.stringtable == stringTable);
+    assert(primitiveBlock.primitivegroup == primitiveGroup);
+    assert(primitiveBlock.granularity == 435);
+    assert(primitiveBlock.lat_offset == 44);
+    assert(primitiveBlock.lon_offset == 32);
+    assert(primitiveBlock.date_granularity == 11);
+
+
+    OtherMessage otherMessage;
+
+    otherMessage.id = 24;
+
+    auto om = otherMessage.serialize();
+    otherMessage = OtherMessage(om);
+
+    assert(otherMessage.id == 24);
+} // unittest

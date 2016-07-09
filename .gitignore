@@ -5,4 +5,5 @@
 # build files
 .obj
 .dub
-
+dosmpbf
+__test__library__

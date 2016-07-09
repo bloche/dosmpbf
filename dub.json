@@ -6,5 +6,6 @@
     "license": "",
     "dependencies": {
         "dproto": "~>2.0.1"
-    }
+    },
+    "buildRequirements": ["silenceDeprecations"]
 }
