@@ -5,7 +5,7 @@
     "homepage": "",
     "license": "",
     "dependencies": {
-        "dproto": "~>2.0.1"
+        "dproto": "~master"
     },
     "buildRequirements": ["silenceDeprecations"]
 }
