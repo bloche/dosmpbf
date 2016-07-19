@@ -303,7 +303,7 @@ unittest
     changeSet.id = 1234;
 
     auto cs = changeSet.serialize();
-    changeSet = ChangeSet(s);
+    changeSet = ChangeSet(cs);
 
     assert(changeSet.id == 1234);
 
@@ -447,7 +447,7 @@ unittest
     PrimitiveBlock primitiveBlock;
 
     primitiveBlock.stringtable = stringTable;
-    primitiveBlock.primitivegroup = primitiveGroup;
+    primitiveBlock.primitivegroup = [primitiveGroup];
     primitiveBlock.granularity = 435;
     primitiveBlock.lat_offset = 44;
     primitiveBlock.lon_offset = 32;
@@ -457,7 +457,7 @@ unittest
     primitiveBlock = PrimitiveBlock(pb);
 
     assert(primitiveBlock.stringtable == stringTable);
-    assert(primitiveBlock.primitivegroup == primitiveGroup);
+    assert(primitiveBlock.primitivegroup == [primitiveGroup]);
     assert(primitiveBlock.granularity == 435);
     assert(primitiveBlock.lat_offset == 44);
     assert(primitiveBlock.lon_offset == 32);
